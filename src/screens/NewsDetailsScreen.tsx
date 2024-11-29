@@ -1,11 +1,23 @@
-import { Alert, Button, Image, SafeAreaView, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React from 'react'
-import { Colors } from 'react-native/Libraries/NewAppScreen';
-import { useNavigation } from '@react-navigation/native';
-import { backIcon, placeHolderImage, shareIcon } from '../constants/image';
+import {
+  Alert,
+  Button,
+  Image,
+  SafeAreaView,
+  ScrollView,
+  Share,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import React from 'react';
+import {Colors} from 'react-native/Libraries/NewAppScreen';
+import {useNavigation} from '@react-navigation/native';
+import {backIcon, placeHolderImage, shareIcon} from '../constants/image';
+import FastImage from '../components/FastImage';
 
-const NewsDetailsScreen = ({ route }) => {
-  const { article } = route.params;  
+const NewsDetailsScreen = ({route}) => {
+  const {article} = route.params;
 
   const navigation = useNavigation();
 
@@ -20,44 +32,41 @@ const NewsDetailsScreen = ({ route }) => {
     }
   };
   const imageSource = article.urlToImage
-  ? { uri: article.urlToImage }
-  : placeHolderImage; 
-
-
-
+    ? {uri: article.urlToImage}
+    : placeHolderImage;
 
   return (
     <SafeAreaView>
-      <ScrollView >
-    <View style={styles.container}>
-         <View style={styles.toolbar}>
-        <TouchableOpacity onPress={() => navigation.goBack()} >
-         <Image source={backIcon} style={styles.shareButtonText}/>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={shareNews}>
-          <Image source={shareIcon} style={styles.shareButtonText}/>
-        </TouchableOpacity>
-      </View>
-      <View style={{paddingHorizontal:8}}>
-      <Text style={styles.heading}>{article.title}</Text>
-      <Text style={styles.authorText}>{article.author}</Text>
-      <Image
-        source={imageSource} 
-        style={styles.detailsImage}
-        resizeMode="cover" 
-       
-      />
-     <Text style={styles.detailsDescription}>
-          {article.description || 'No description available.'} 
-        </Text>
-      </View>
-    </View>
-    </ScrollView>
+      <ScrollView>
+        <View style={styles.container}>
+          <View style={styles.toolbar}>
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Image source={backIcon} style={styles.shareButtonText} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={shareNews}>
+              <Image source={shareIcon} style={styles.shareButtonText} />
+            </TouchableOpacity>
+          </View>
+          <View style={{paddingHorizontal: 8}}>
+            <Text style={styles.heading}>{article.title}</Text>
+            <Text style={styles.authorText}>{article.author}</Text>
+            <FastImage
+              source={imageSource}
+              placeholderImage={placeHolderImage}
+              style={styles.detailsImage}
+              resizeMode="cover"
+            />
+            <Text style={styles.detailsDescription}>
+              {article.description || 'No description available.'}
+            </Text>
+          </View>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
-}
+};
 
-export default NewsDetailsScreen
+export default NewsDetailsScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -67,31 +76,30 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
   toolbar: {
-    paddingHorizontal:8,
+    paddingHorizontal: 8,
     flexDirection: 'row',
     justifyContent: 'space-between',
-   
   },
   backButtonText: {
     color: '#000',
     fontSize: 38,
-    fontWeight:800
+    fontWeight: 800,
   },
   shareButtonText: {
-    marginTop:16,
-    height:24,
-    width:24
+    marginTop: 16,
+    height: 24,
+    width: 24,
   },
   heading: {
     fontSize: 22,
     color: Colors.black,
     marginTop: 24,
-    fontWeight:600,
+    fontWeight: 600,
     marginBottom: 10,
   },
   detailsContainer: {
     flex: 1,
-    padding:8,
+    padding: 8,
     backgroundColor: '#fff',
   },
   detailsImage: {
@@ -117,5 +125,4 @@ const styles = StyleSheet.create({
     color: '#696969',
     marginBottom: 20,
   },
-
-})
+});

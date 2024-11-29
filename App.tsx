@@ -25,7 +25,7 @@ function App(): React.JSX.Element {
             <Stack.Screen
               name="HomeScreen"
               component={HomeScreen}
-              options={{title: 'Newa Screen'}}
+              options={{title: 'News Screen'}}
             />
             <Stack.Screen
               name="NewsDetailsScreen"

@@ -1,3 +1,6 @@
+import NetInfo from '@react-native-community/netinfo';
+import axios from 'axios';
+import React, {useEffect, useState} from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -9,16 +12,13 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
-import axios from 'axios';
-import baseFile, {api_key, baseUrl} from '../api-config/baseFile';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import NetInfo from '@react-native-community/netinfo';
-import {placeHolderImage} from '../constants/image';
 import {useDispatch, useSelector} from 'react-redux';
-import {RootStoreState} from '../redux/store.types';
+import {api_key, baseUrl} from '../api-config/baseFile';
+import {placeHolderImage} from '../constants/image';
 import {storeNews} from '../redux/NewsSlice';
+import {RootStoreState} from '../redux/store.types';
+import FastImage from '../components/FastImage';
 
 const HomeScreen = ({navigation}) => {
   const articles = useSelector((state: RootStoreState) => state.news.news);
@@ -47,6 +47,13 @@ const HomeScreen = ({navigation}) => {
   };
 
   const onRefresh = async () => {
+    if (offline) {
+      Alert.alert(
+        'Internet not available',
+        'Please make sure you are connected to network',
+      );
+      return;
+    }
     setRefreshing(true);
     await fetchNews();
     setRefreshing(false);
@@ -55,11 +62,12 @@ const HomeScreen = ({navigation}) => {
   // Check network status and load articles
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener(state => {
-      if (state.isConnected) {
+      if (state.isInternetReachable) {
         setOffline(false);
         fetchNews();
       } else {
         setOffline(true);
+        setLoading(false);
       }
     });
 
@@ -85,7 +93,13 @@ const HomeScreen = ({navigation}) => {
         onPress={() =>
           navigation.navigate('NewsDetailsScreen', {article: item})
         }>
-        <Image source={imageSource} style={styles.image} resizeMode="cover" />
+        <FastImage
+          placeholderImage={placeHolderImage}
+          source={imageSource}
+          style={styles.image}
+          placeHolderImageStyle={styles.placeholder}
+          resizeMode="cover"
+        />
         <View style={styles.textContainer}>
           <Text style={styles.title}>{item.title}</Text>
           <Text numberOfLines={2} style={styles.description}>
@@ -103,27 +117,28 @@ const HomeScreen = ({navigation}) => {
         {offline && (
           <Text style={styles.offlineIndicator}>You are offline</Text>
         )}
-        {loading ? (
-          <View style={styles.loaderContainer}>
-            <ActivityIndicator size="large" color="#0000ff" />
-            <Text>Loading News...</Text>
-          </View>
-        ) : (
-          <FlatList
-            data={articles}
-            keyExtractor={index => index.toString()}
-            renderItem={renderItem}
-            showsVerticalScrollIndicator={false}
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            ListEmptyComponent={
-              <View style={styles.centeredContainer}>
-                <Text style={styles.errorText}>No articles available.</Text>
-              </View>
-            }
-          />
-        )}
       </View>
+      {loading ? (
+        <View style={styles.loaderContainer}>
+          <ActivityIndicator size="large" color="#0000ff" />
+          <Text>Loading News...</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={articles}
+          keyExtractor={index => index.toString()}
+          renderItem={renderItem}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.contentContainer}
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          ListEmptyComponent={
+            <View style={styles.centeredContainer}>
+              <Text style={styles.errorText}>No articles available.</Text>
+            </View>
+          }
+        />
+      )}
     </SafeAreaView>
   );
 };
@@ -133,7 +148,7 @@ export default HomeScreen;
 const styles = StyleSheet.create({
   container: {
     padding: 16,
-    paddingBottom: 48,
+    paddingBottom: 0,
   },
   loaderContainer: {
     flex: 1,
@@ -189,6 +204,10 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 150,
   },
+  placeholder: {
+    width: '100%',
+    height: '100%',
+  },
   textContainer: {
     padding: 10,
   },
@@ -202,5 +221,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
     lineHeight: 20,
+  },
+
+  contentContainer: {
+    paddingHorizontal: 16,
   },
 });
